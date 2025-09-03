@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-data = pd.read_csv(r"C:\Users\User\ufc-fighters-statistics-CLEANED.csv")
+data = pd.read_csv(r'C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison')
 st.set_page_config(page_title="Fighter Comparison", layout="wide")
 
 st.title("🥊 UFC Fighter Comparison App")
@@ -88,4 +88,5 @@ st.write("---")
 st.write("### Fighter Details")
 st.dataframe(
     data[data['name'].isin([fighter1, fighter2])][['name', 'wins', 'losses', 'draws']].fillna(0)
+
 )
