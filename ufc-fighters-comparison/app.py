@@ -1,23 +1,26 @@
 import streamlit as st
 import pandas as pd
+import os # Import the 'os' module
 
 # --- Functions ---
 
 @st.cache_data
-def load_data("C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv"):
+def load_data(file_name):
     """
-    Loads data from a CSV file.
-    This function is cached, so the data is only loaded once.
-    IMPORTANT: The 'file_path' should be a relative path, meaning
-    the CSV file must be in the SAME FOLDER as this script.
+    Loads data from a CSV file located in the same directory as the script.
+    This is a more robust way to find the file.
     """
+    # Get the absolute path of the directory where this script is located
+    script_dir = os.path.dirname(__file__)
+    # Join the script's directory path with the file name to create an absolute path
+    file_path = os.path.join(script_dir, file_name)
+
     try:
-        # These two lines must have the EXACT same indentation
-        df = pd.read_csv("C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv")
+        df = pd.read_csv(file_path)
         return df
     except FileNotFoundError:
-        st.error(f"Error: The data file '{"C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv"}' was not found.")
-        st.warning("Please make sure your CSV data file is in the same folder as this Python script (`app.py`).")
+        st.error(f"Error: The data file '{file_name}' was not found.")
+        st.warning(f"Please make sure your data file is in the same folder as your script. I was looking for it at: {file_path}")
         st.stop() # Stop the app if the file can't be found.
 
 def get_fighter_stat(df, fighter_name, feature_name):
@@ -25,16 +28,14 @@ def get_fighter_stat(df, fighter_name, feature_name):
     fighter_data = df[df['name'] == fighter_name]
     if fighter_data.empty:
         return None
-    # Use .get() for safe access in case a column is missing for some reason
     value = fighter_data.iloc[0].get(feature_name, None)
     return value
 
 # --- Page Configuration ---
-# This should be the first Streamlit command in your app
 st.set_page_config(page_title="UFC Fighter Comparison", layout="wide", initial_sidebar_state="expanded")
 
 # --- Load Data ---
-# This line assumes 'ufc-fighters-statistics-CLEANED.csv' is in the same directory
+# Now we call the function with just the file name
 df = load_data('ufc-fighters-statistics-CLEANED.csv')
 
 # --- Sidebar Content ---
@@ -70,19 +71,16 @@ col1, col2, col3 = st.columns(3)
 fighter_names = sorted(df['name'].dropna().unique())
 
 with col1:
-    # Safely set default index to prevent crashes if the fighter is not in the list
     default_fighter_1 = "Jon Jones"
     default_index_1 = fighter_names.index(default_fighter_1) if default_fighter_1 in fighter_names else 0
     fighter1 = st.selectbox("Select Fighter 1", fighter_names, index=default_index_1, key="fighter1")
 
 with col2:
     fighter2_options = [f for f in fighter_names if f != fighter1]
-    # Safely set default index for the second fighter
     default_fighter_2 = "Anderson Silva"
     default_index_2 = fighter2_options.index(default_fighter_2) if default_fighter_2 in fighter2_options else 0
     fighter2 = st.selectbox("Select Fighter 2", fighter2_options, index=default_index_2, key="fighter2")
 
-# List of features to compare
 features = [
     'age', 'height_cm', 'weight_in_kg', 'reach_in_cm', 'stance',
     'significant_strikes_landed_per_minute', 'significant_striking_accuracy',
@@ -93,7 +91,6 @@ features = [
 ]
 features_in_data = [f for f in features if f in df.columns]
 with col3:
-    # Set a default feature
     default_feature_index = 5 if len(features_in_data) > 5 else 0
     feature = st.selectbox("Select Feature to Compare", features_in_data, index=default_feature_index)
 
@@ -112,7 +109,6 @@ with metric_col1:
     st.markdown(f"### {fighter1}")
     if is_numeric:
         delta = fighter1_stat - fighter2_stat
-        # Logic to determine if a lower number is better (e.g., strikes absorbed)
         lower_is_better = any(s in feature for s in ['absorbed', 'losses'])
         st.metric(
             label=feature.replace('_', ' ').title(),
@@ -142,11 +138,6 @@ st.write("---")
 st.write("###  Fighter Details")
 display_cols = ['wins', 'losses', 'draws', 'age', 'stance', 'height_cm', 'weight_in_kg']
 fighter_details = df[df['name'].isin([fighter1, fighter2])].set_index('name')
-# Filter display_cols to only include columns that actually exist in the dataframe
 final_cols = [col for col in display_cols if col in fighter_details.columns]
 st.dataframe(fighter_details[final_cols].fillna(0))
-
-
-
-
 
