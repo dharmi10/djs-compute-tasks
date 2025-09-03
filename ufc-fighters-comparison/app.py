@@ -4,7 +4,7 @@ import pandas as pd
 # --- Functions ---
 
 @st.cache_data
-def load_data(r"C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv"):
+def load_data("C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv"):
     """
     Loads data from a CSV file.
     This function is cached, so the data is only loaded once.
@@ -13,10 +13,10 @@ def load_data(r"C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fight
     """
     try:
         # These two lines must have the EXACT same indentation
-        df = pd.read_csv(r"C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv")
+        df = pd.read_csv("C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv")
         return df
     except FileNotFoundError:
-        st.error(f"Error: The data file '{r"C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv"}' was not found.")
+        st.error(f"Error: The data file '{"C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv"}' was not found.")
         st.warning("Please make sure your CSV data file is in the same folder as this Python script (`app.py`).")
         st.stop() # Stop the app if the file can't be found.
 
@@ -145,6 +145,7 @@ fighter_details = df[df['name'].isin([fighter1, fighter2])].set_index('name')
 # Filter display_cols to only include columns that actually exist in the dataframe
 final_cols = [col for col in display_cols if col in fighter_details.columns]
 st.dataframe(fighter_details[final_cols].fillna(0))
+
 
 
 
