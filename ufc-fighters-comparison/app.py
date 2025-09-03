@@ -12,8 +12,8 @@ def load_data(file_path):
     the CSV file must be in the SAME FOLDER as this script.
     """
     try:
-        # Use the file_path argument instead of a hardcoded path
-     df = pd.read_csv(r"C:/Users/User/OneDrive/Desktop/ufc-fighters-comparison/ufc-fighters-statistics-CLEANED.csv")
+        # These two lines must have the EXACT same indentation
+        df = pd.read_csv(file_path)
         return df
     except FileNotFoundError:
         st.error(f"Error: The data file '{file_path}' was not found.")
@@ -145,5 +145,4 @@ fighter_details = df[df['name'].isin([fighter1, fighter2])].set_index('name')
 # Filter display_cols to only include columns that actually exist in the dataframe
 final_cols = [col for col in display_cols if col in fighter_details.columns]
 st.dataframe(fighter_details[final_cols].fillna(0))
-
 
